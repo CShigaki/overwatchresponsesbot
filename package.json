@@ -1,0 +1,25 @@
+{
+  "name": "overwatchresponsesbot",
+  "version": "1.0.0",
+  "description": "Telegram bot used to send overwatch quotes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CShigaki/overwatchresponsesbot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CShigaki/overwatchresponsesbot/issues"
+  },
+  "homepage": "https://github.com/CShigaki/overwatchresponsesbot#readme",
+  "dependencies": {
+    "axios": "^0.16.2",
+    "cheerio": "^1.0.0-rc.2",
+    "telegram-bot-api": "^1.2.0",
+  }
+}
