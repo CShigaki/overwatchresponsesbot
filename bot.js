@@ -1,40 +1,44 @@
 'use strict'
 
-const telegram = require('telegram-bot-api');
 const axios = require('axios');
+const fs = require('fs');
+const uuid = require('uuid4');
 
-const api = new telegram({
-  token: '441092785:AAGDVuvg9q6j4pOePB28AeA-KUQ1ixHdvHc',
-  updates: {
-    enabled: true,
-  },
+const TelegramBot = require('node-telegram-bot-api');
+const token = '441092785:AAGDVuvg9q6j4pOePB28AeA-KUQ1ixHdvHc';
+const bot = new TelegramBot(token, {polling: true});
+
+var voiceLines;
+
+fs.readFile('./responses.json', function read(err, data) {
+  if (err) {
+    throw err;
+  }
+  voiceLines = JSON.parse(data);
 });
 
-api.getMe()
-  .then(function(data) {
-    console.log(data);
-  })
-  .catch(function(err) {
-    console.log(err);
+bot.on('inline_query', (msg) => {
+  if (!msg.query) {
+    return;
+  }
+
+  const queryMessage = msg.query;
+  const queryId = msg.id;
+  const results = [];
+
+  Object.keys(voiceLines).map((key) => {
+    const expression = new RegExp(queryMessage, "gi");
+
+    if (expression.test(key)) {
+      const id = uuid();
+      results.push({
+        type: 'voice',
+        id: id,
+        voice_url: voiceLines[key],
+        title: key,
+      });
+    }
   });
 
-
-api.on('inline.query', function(message) {
-  const queryMessage = message.query;
-
-
-  axios.get('http://overwatch.gamepedia.com/api.php?action=query&titles=File%3AHanzo%20-%20Marked.ogg&prop=imageinfo&iiprop=url&format=json')
-    .then((result) => {
-      console.log(result.data);
-    });
-});
-
-api.on('inline.result', function(message) {
-  // Received chosen inline result
-    console.log(message);
-});
-
-api.on('inline.callback.query', function(message) {
-  // New incoming callback query
-    console.log(message);
+  bot.answerInlineQuery(msg.id, results.slice(0, 50), { cache_time: 1 });
 });

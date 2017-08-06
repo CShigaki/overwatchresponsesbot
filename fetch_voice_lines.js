@@ -1,11 +1,14 @@
 const cheerio = require('cheerio')
 const axios = require('axios');
+const fs = require('fs');
 
 const BASE_WIKI_DOMAIN = 'https://overwatch.gamepedia.com';
 const BASE_HEROES_PAGE = '/Category:Quotations';
+const VOICE_LINES_ID = '#Voice_Lines';
 
 var heroesPages = [];
 var voiceLines = {};
+var finishedJobs = [];
 
 function init() {
   retrieveHeroesPages();
@@ -31,19 +34,34 @@ function retrieveVoiceLinesForEachHeroPage() {
         const $ = cheerio.load(result.data, { decodeEntities: true });
         const heroName = $('h1.firstHeading').text().split('/')[0];
 
-        console.log(heroName);
-        console.log($('audio')['0'].parent());
-        // console.log($('audio'));
+        const voiceLinesTable = $(VOICE_LINES_ID).parent().next();
 
-        $('audio').each((i, elem) => {
-          // console.log($(elem.parent.prev).text());
-          //console.log(elem.attribs.src);
-          // voiceLines[this.parent.prev.text()] = $(this).attr('src');
+        voiceLinesTable.find('audio').each((i, elem) => {
+          let audioQuote = $(elem.parent).prev().text();
+
+          audioQuote = audioQuote.replace(/[^0-9a-zA-Z_\s]/g, '');
+          audioQuote = audioQuote.replace(/\n/g, '');
+
+          voiceLines[audioQuote] = $(elem).attr('src');
         });
 
-        console.log(voiceLines);
+        finishedJobs.push(heroName);
+        storeJsonFile();
       });
   });
 }
+
+function storeJsonFile() {
+  if (finishedJobs.length == heroesPages.length) {
+    const content = JSON.stringify(voiceLines);
+
+    fs.writeFile("responses.json", content, 'utf8', function (err) {
+      if (err) {
+        return console.log(err);
+      }
+
+      console.log("The file was saved!");
+    });
+}}
 
 init()
