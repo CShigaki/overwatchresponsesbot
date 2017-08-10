@@ -4,7 +4,10 @@ const fs = require('fs');
 
 const BASE_WIKI_DOMAIN = 'https://overwatch.gamepedia.com';
 const BASE_HEROES_PAGE = '/Category:Quotations';
-const VOICE_LINES_ID = '#Voice_Lines';
+const VOICE_LINES_IDS = [
+  '#Voice_Lines',
+  '#Abilities',
+];
 
 var heroesPages = [];
 var voiceLines = {};
@@ -34,15 +37,17 @@ function retrieveVoiceLinesForEachHeroPage() {
         const $ = cheerio.load(result.data, { decodeEntities: true });
         const heroName = $('h1.firstHeading').text().split('/')[0];
 
-        const voiceLinesTable = $(VOICE_LINES_ID).parent().next();
+        VOICE_LINES_IDS.map((id) => {
+          const voiceLinesTable = $(id).parent().next();
 
-        voiceLinesTable.find('audio').each((i, elem) => {
-          let audioQuote = $(elem.parent).prev().text();
+          voiceLinesTable.find('audio').each((i, elem) => {
+            let audioQuote = $(elem.parent).prev().text();
 
-          audioQuote = audioQuote.replace(/[^0-9a-zA-Z_\s]/g, '');
-          audioQuote = audioQuote.replace(/\n/g, '');
+            audioQuote = audioQuote.replace(/[^0-9a-zA-Z_\s]/g, '');
+            audioQuote = audioQuote.replace(/\n/g, '');
 
-          voiceLines[audioQuote] = $(elem).attr('src');
+            voiceLines[audioQuote] = $(elem).attr('src');
+          });
         });
 
         finishedJobs.push(heroName);
