@@ -1,11 +1,10 @@
 'use strict'
 
-const axios = require('axios');
 const fs = require('fs');
 const uuid = require('uuid4');
 
 const TelegramBot = require('node-telegram-bot-api');
-const token = '441092785:AAGDVuvg9q6j4pOePB28AeA-KUQ1ixHdvHc';
+const token = 'Token Bitch';
 const bot = new TelegramBot(token, {polling: true});
 
 var voiceLines;
@@ -23,7 +22,6 @@ bot.on('inline_query', (msg) => {
   }
 
   const queryMessage = msg.query;
-  const queryId = msg.id;
   const results = [];
 
   Object.keys(voiceLines).map((key) => {
@@ -39,6 +37,8 @@ bot.on('inline_query', (msg) => {
       });
     }
   });
+
+  console.log(results);
 
   bot.answerInlineQuery(msg.id, results.slice(0, 50), { cache_time: 1 });
 });
